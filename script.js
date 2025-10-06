@@ -4,7 +4,7 @@ const emojiElement = document.getElementById('weather-emoji');
 const tempElement = document.getElementById('weather-temp');
 const descElement = document.getElementById('weather-desc');
 
-// Objeto para "traduzir" os códigos do tempo (mesmo de antes)
+// Objeto para "traduzir" os códigos do tempo
 const weatherCodes = {
     0: { desc: 'Céu limpo', emoji: '☀️' },
     1: { desc: 'Principalmente limpo', emoji: '🌤️' },
