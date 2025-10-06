@@ -1,51 +1,36 @@
-// 1. Seleciona os elementos que vamos atualizar
+// Seleciona os elementos que vamos atualizar
+const titleElement = document.getElementById('location-title');
 const emojiElement = document.getElementById('weather-emoji');
 const tempElement = document.getElementById('weather-temp');
 const descElement = document.getElementById('weather-desc');
 
-// 2. Objeto para "traduzir" os códigos do tempo (WMO Weather interpretation codes)
-//    Você pode encontrar a lista completa na documentação do Open-Meteo
+// Objeto para "traduzir" os códigos do tempo (mesmo de antes)
 const weatherCodes = {
     0: { desc: 'Céu limpo', emoji: '☀️' },
     1: { desc: 'Principalmente limpo', emoji: '🌤️' },
     2: { desc: 'Parcialmente nublado', emoji: '⛅' },
     3: { desc: 'Nublado', emoji: '☁️' },
-    45: { desc: 'Nevoeiro', emoji: '🌫️' },
-    48: { desc: 'Nevoeiro com geada', emoji: '🌫️' },
-    51: { desc: 'Chuvisco leve', emoji: '🌦️' },
-    53: { desc: 'Chuvisco moderado', emoji: '🌦️' },
-    55: { desc: 'Chuvisco denso', emoji: '🌦️' },
     61: { desc: 'Chuva leve', emoji: '🌧️' },
-    63: { desc: 'Chuva moderada', emoji: '🌧️' },
-    65: { desc: 'Chuva forte', emoji: '🌧️' },
-    80: { desc: 'Pancadas de chuva leves', emoji: '🌧️' },
-    81: { desc: 'Pancadas de chuva moderadas', emoji: '🌧️' },
-    82: { desc: 'Pancadas de chuva violentas', emoji: '⛈️' },
+    80: { desc: 'Pancadas de chuva', emoji: '🌧️' },
     95: { desc: 'Trovoada', emoji: '⛈️' },
     // Adicione mais códigos conforme necessário
 };
 
-// 3. Monta a URL da API com as coordenadas e dados desejados
-const lat = -22.11;
-const lon = -43.20;
-const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=America/Sao_Paulo`;
+// Função que busca o clima, agora recebendo lat e lon como parâmetros
+function buscarClima(latitude, longitude) {
+    const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code&timezone=America/Sao_Paulo`;
 
-// 4. Função para buscar os dados na API
-function buscarClima() {
     fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
-            // Os dados atuais estão dentro da propriedade "current"
             const currentTemp = data.current.temperature_2m;
             const currentCode = data.current.weather_code;
-
-            // Pega a descrição e o emoji do nosso objeto `weatherCodes`
-            // Se o código não for encontrado, usa um padrão
             const weatherInfo = weatherCodes[currentCode] || { desc: 'Tempo desconhecido', emoji: '🤷' };
 
-            // 5. Atualiza o HTML com os dados recebidos
+            // Atualiza o HTML com os dados
+            titleElement.textContent = `Clima Agora`; // Título genérico
             emojiElement.textContent = weatherInfo.emoji;
-            tempElement.textContent = `${Math.round(currentTemp)}°C`; // Arredonda a temperatura
+            tempElement.textContent = `${Math.round(currentTemp)}°C`;
             descElement.textContent = weatherInfo.desc;
         })
         .catch(error => {
@@ -54,5 +39,34 @@ function buscarClima() {
         });
 }
 
-// 6. Chama a função assim que a página carregar
-document.addEventListener('DOMContentLoaded', buscarClima);
+// Função para lidar com o sucesso ao obter a localização
+function sucessoNaLocalizacao(posicao) {
+    // A API nos devolve um objeto 'posicao' com as coordenadas
+    const latitude = posicao.coords.latitude;
+    const longitude = posicao.coords.longitude;
+
+    console.log(`Localização obtida: Lat ${latitude}, Lon ${longitude}`);
+    
+    // Agora que temos as coordenadas, chamamos a função para buscar o clima
+    buscarClima(latitude, longitude);
+}
+
+// Função para lidar com o erro ao obter a localização
+function erroNaLocalizacao(erro) {
+    console.error(`Erro ao obter localização: ${erro.message}`);
+    descElement.textContent = 'Não foi possível obter sua localização. Permita o acesso e atualize a página.';
+    emojiElement.textContent = '❌';
+}
+
+// A MÁGICA ACONTECE AQUI!
+// Verificamos se o navegador suporta geolocalização
+if ('geolocation' in navigator) {
+    // Se suportar, pedimos a posição do usuário.
+    // O navegador vai pedir permissão.
+    // Se o usuário aceitar, a função sucessoNaLocalizacao será chamada.
+    // Se ele negar ou der erro, a função erroNaLocalizacao será chamada.
+    navigator.geolocation.getCurrentPosition(sucessoNaLocalizacao, erroNaLocalizacao);
+} else {
+    // Caso o navegador seja muito antigo e não tenha suporte
+    descElement.textContent = 'Seu navegador não suporta geolocalização.';
+}
