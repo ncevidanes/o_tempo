@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clima Agora</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <style>
+        body {
+            display: grid;
+            place-items: center;
+            height: 100vh;
+        }
+        .weather-widget {
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+        }
+        .weather-emoji {
+            font-size: 4rem;
+        }
+        .weather-temp {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+        .weather-desc {
+            font-size: 1.5rem;
+            margin-top: -1rem;
+        }
+    </style>
+</head>
+<body>
+    
+    <article class="weather-widget">
+        <header>
+            <h2>Clima em Três Rios, RJ</h2>
+        </header>
+        
+        <div id="weather-data">
+            <div class="weather-emoji" id="weather-emoji">⏳</div>
+            <div class="weather-temp" id="weather-temp">--°C</div>
+            <div class="weather-desc" id="weather-desc">Carregando...</div>
+        </div>
+    </article>
+
+    <script src="script.js"></script>
+</body>
+</html>
